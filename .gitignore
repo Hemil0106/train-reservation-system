@@ -1,0 +1,26 @@
+# Maven build output
+target/
+
+# Local database configuration - NEVER commit. This file holds a password.
+database/local.properties
+
+# Session transcripts and generated dumps - NEVER commit. They carry the
+# machine's root password, real names and phone numbers.
+session-*.md
+database/*_dump.sql
+
+# Compiled classes outside Maven's output directory
+*.class
+out/
+
+# IDE
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

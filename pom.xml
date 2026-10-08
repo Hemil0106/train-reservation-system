@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.busticket</groupId>
+    <artifactId>bus-ticket-booking</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <name>Bus Ticket Booking System</name>
+
+    <properties>
+        <!-- Build Java 17 bytecode, even on a newer JDK. -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- MySQL Connector/J 8.4 is the LTS line for MySQL 8.x servers. -->
+        <mysql.connector.version>8.4.0</mysql.connector.version>
+        <!--
+            jBCrypt: a self-contained BCrypt implementation. The JDK has no
+            password hashing, and hand-rolling one is how bad hashes happen.
+            Deliberately NOT Spring Security: that would drag in a web stack,
+            a DI container and dozens of transitive jars to obtain one
+            algorithm. See README section 10.1.
+        -->
+        <jbcrypt.version>0.4</jbcrypt.version>
+    </properties>
+
+    <!--
+        Two dependencies, both unavoidable:
+
+        1. java.sql is part of the JDK, but no MySQL driver is.
+        2. The JDK has no password hashing, and BCrypt cannot be improvised.
+
+        Everything else is the Java standard library only - no ORM, no
+        connection pool, no test framework, no DI container.
+
+        Note for the legacy bus application: it still needs none of this at
+        runtime. These are only loaded when DatabaseConnection or
+        PasswordHasher is used.
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.connector.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${jbcrypt.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+
+            <!--
+                Copies the JDBC driver next to the jar so that
+                "java -jar target/bus-ticket-booking-0.1.0.jar" keeps working
+                without shading and without a launcher script.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-runtime-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Bundles com.rail.Main as the jar entry point: java -jar target/bus-ticket-booking-0.1.0.jar
+                 addClasspath writes a Class-Path of lib/ entries for every
+                 runtime dependency, so jbcrypt ships alongside the driver and
+                 no manifest edit is needed when a dependency is added. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.rail.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

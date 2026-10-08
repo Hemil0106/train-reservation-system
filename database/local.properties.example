@@ -1,0 +1,68 @@
+# =====================================================================
+# Template for a LOCAL database configuration file.
+#
+# Copy this file to database/local.properties and fill in your own values:
+#
+#   copy database\local.properties.example database\local.properties
+#
+# WHERE THE COPY MUST GO
+# ----------------------
+# Beside the application, at <project>/database/local.properties.
+# RailReserve looks for it in two places, in this order:
+#
+#   1. database/local.properties relative to the directory you started from
+#   2. database/local.properties relative to the project the jar or the
+#      compiled classes came from  (i.e. <project>/database/local.properties)
+#
+# So a jar started from anywhere - a shortcut, another drive, C:\ - still finds
+# this file, as long as the jar itself has not been moved away from the project.
+# When RailReserve cannot find it, the message it shows names the exact absolute
+# path it wants.
+#
+# SECURITY
+# --------
+# database/local.properties is listed in .gitignore and MUST NOT be
+# committed. It is the only file allowed to hold a real password, and it
+# stays on your machine.
+#
+# Precedence, first hit wins:
+#   1. JVM system properties   -Ddb.user=... -Ddb.password=...
+#   2. environment variables   RAIL_DB_USER, RAIL_DB_PASSWORD, ...
+#   3. this file
+# =====================================================================
+
+# --- Account to connect as -------------------------------------------
+# Use the dedicated least-privilege account created by
+# database/create_app_user.sql, NOT the MySQL root account.
+db.user=CHANGE_ME
+
+# --- Password for that account ---------------------------------------
+db.password=CHANGE_ME
+
+# --- How to reach the server -----------------------------------------
+# Either give the whole URL:
+#db.url=jdbc:mysql://localhost:3306/railway
+
+# ...or give the parts and the URL is assembled for you:
+db.host=localhost
+db.port=3306
+db.name=railway
+
+# --- JDBC driver ------------------------------------------------------
+# Only change this if you use a different driver build.
+#db.driver=com.mysql.cj.jdbc.Driver
+
+# --- Search limits (Milestone 4) --------------------------------------
+# Largest party allowed in one search and one booking. Must be a positive
+# whole number; anything else is ignored and 6 is used instead.
+search.max.passengers=6
+
+# --- Passenger age limits (Milestone 5) ------------------------------
+# Accepted range for a passenger's age, in whole years. Both must be whole
+# numbers between 1 and 120; the maximum cannot go higher because the
+# passengers table itself rejects an age above 120. A value outside that
+# range, or an unparseable one, is ignored and the default is used, so a
+# typo cannot quietly widen the rule. If the minimum is set above the
+# maximum, both fall back to these defaults.
+booking.min.age=1
+booking.max.age=120
